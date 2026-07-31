@@ -1,1 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI-Enabled Flood Susceptibility WebGIS</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+
+body{
+margin:0;
+padding:0;
+font-family:Arial,sans-serif;
+}
+
+header{
+background:#1565C0;
+color:white;
+padding:15px;
+text-align:center;
+font-size:28px;
+font-weight:bold;
+}
+
+#map{
+height:90vh;
+width:100%;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+AI-Enabled WebGIS Platform for Flood Susceptibility, Exposure and Risk Assessment
+
+<br>
+
+Patna Metropolitan Area
+
+</header>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+var map = L.map('map').setView([25.5941,85.1376],11);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+maxZoom:19,
+attribution:'© OpenStreetMap'
+}
+).addTo(map);
+
+</script>
+
+</body>
+
+</html>
