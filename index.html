@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>AI-Enabled Flood Susceptibility WebGIS</title>
@@ -12,26 +10,80 @@
 <link rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <style>
 
-body{
+html,body{
 margin:0;
 padding:0;
-font-family:Arial,sans-serif;
+height:100%;
+font-family:Arial,Helvetica,sans-serif;
 }
 
 header{
-background:#1565C0;
+
+background:#0057b8;
 color:white;
 padding:15px;
 text-align:center;
-font-size:28px;
+font-size:30px;
 font-weight:bold;
+
+}
+
+.container{
+
+display:flex;
+height:calc(100vh - 75px);
+
+}
+
+.sidebar{
+
+width:280px;
+background:#f4f4f4;
+padding:20px;
+overflow:auto;
+
+}
+
+.sidebar h2{
+
+margin-top:0;
+
+}
+
+.sidebar button{
+
+width:100%;
+padding:12px;
+margin-bottom:10px;
+font-size:16px;
+cursor:pointer;
+border:none;
+background:#0057b8;
+color:white;
+border-radius:6px;
+
+}
+
+.sidebar button:hover{
+
+background:#003d80;
+
 }
 
 #map{
-height:90vh;
-width:100%;
+
+flex:1;
+
+}
+
+.leaflet-container{
+
+background:white;
+
 }
 
 </style>
@@ -42,29 +94,135 @@ width:100%;
 
 <header>
 
-AI-Enabled WebGIS Platform for Flood Susceptibility, Exposure and Risk Assessment
-
-<br>
+AI-Enabled WebGIS Platform for Flood Susceptibility, Exposure and Risk Assessment<br>
 
 Patna Metropolitan Area
 
 </header>
 
+<div class="container">
+
+<div class="sidebar">
+
+<h2>Map Layers</h2>
+
+<button onclick="showImage('images2/susceptibility.png')">
+
+Flood Susceptibility
+
+</button>
+
+<button onclick="showImage('images2/population_density.png')">
+
+Population Density
+
+</button>
+
+<button onclick="showImage('images2/road_density.png')">
+
+Road Density
+
+</button>
+
+<button onclick="showImage('images2/hospital_density.png')">
+
+Hospital Density
+
+</button>
+
+<button onclick="showImage('images2/school_density.png')">
+
+School Density
+
+</button>
+
+<button onclick="removeOverlay()">
+
+Hide Layer
+
+</button>
+
+</div>
+
 <div id="map"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</div>
 
 <script>
 
-var map = L.map('map').setView([25.5941,85.1376],11);
+var map=L.map('map').setView([25.60,85.13],11);
 
 L.tileLayer(
+
 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+
 {
+
 maxZoom:19,
+
 attribution:'© OpenStreetMap'
+
 }
+
 ).addTo(map);
+
+let boundary;
+
+fetch('data/patna_boundaet_geojson.geojson')
+
+.then(response=>response.json())
+
+.then(data=>{
+
+boundary=L.geoJSON(data,{
+
+style:{
+
+color:'black',
+
+weight:2,
+
+fillOpacity:0
+
+}
+
+}).addTo(map);
+
+map.fitBounds(boundary.getBounds());
+
+});
+
+var imageOverlay;
+
+function showImage(image){
+
+removeOverlay();
+
+if(!boundary){
+
+alert("Boundary not loaded yet.");
+
+return;
+
+}
+
+var bounds=boundary.getBounds();
+
+imageOverlay=L.imageOverlay(image,bounds).addTo(map);
+
+}
+
+function removeOverlay(){
+
+if(imageOverlay){
+
+map.removeLayer(imageOverlay);
+
+}
+
+}
+
+L.control.scale().addTo(map);
 
 </script>
 
