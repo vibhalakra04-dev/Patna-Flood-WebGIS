@@ -1,33 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>AI-Enabled Flood Susceptibility WebGIS</title>
+<title>AI-Enabled WebGIS Platform</title>
 
 <link rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<script src="https://unpkg.com/georaster"></script>
+
+<script src="https://unpkg.com/georaster-layer-for-leaflet/dist/georaster-layer-for-leaflet.min.js"></script>
+
 <style>
 
 html,body{
-margin:0;
-padding:0;
+
 height:100%;
-font-family:Arial,Helvetica,sans-serif;
+margin:0;
+font-family:Arial,sans-serif;
+
 }
 
 header{
 
-background:#0057b8;
+background:#1565C0;
 color:white;
-padding:15px;
 text-align:center;
-font-size:30px;
+padding:18px;
+font-size:22px;
 font-weight:bold;
 
 }
@@ -35,15 +41,16 @@ font-weight:bold;
 .container{
 
 display:flex;
-height:calc(100vh - 75px);
+height:calc(100% - 78px);
 
 }
 
 .sidebar{
 
-width:280px;
+width:320px;
 background:#f4f4f4;
-padding:20px;
+padding:15px;
+box-sizing:border-box;
 overflow:auto;
 
 }
@@ -57,32 +64,26 @@ margin-top:0;
 .sidebar button{
 
 width:100%;
-padding:12px;
-margin-bottom:10px;
-font-size:16px;
-cursor:pointer;
+padding:14px;
+margin-bottom:12px;
 border:none;
-background:#0057b8;
-color:white;
 border-radius:6px;
+background:#1565C0;
+color:white;
+font-size:18px;
+cursor:pointer;
 
 }
 
 .sidebar button:hover{
 
-background:#003d80;
+background:#0d47a1;
 
 }
 
 #map{
 
 flex:1;
-
-}
-
-.leaflet-container{
-
-background:white;
 
 }
 
@@ -94,8 +95,8 @@ background:white;
 
 <header>
 
-AI-Enabled WebGIS Platform for Flood Susceptibility, Exposure and Risk Assessment<br>
-
+AI-Enabled WebGIS Platform for Flood Susceptibility,
+Exposure and Risk Assessment
 Patna Metropolitan Area
 
 </header>
@@ -106,37 +107,37 @@ Patna Metropolitan Area
 
 <h2>Map Layers</h2>
 
-<button onclick="showImage('images2/susceptibility.png')">
+<button onclick="showLayer('susceptibility')">
 
 Flood Susceptibility
 
 </button>
 
-<button onclick="showImage('images2/population_density.tif')">
+<button onclick="showLayer('population_density')">
 
 Population Density
 
 </button>
 
-<button onclick="showImage('images2/road_density.png')">
+<button onclick="showLayer('road_density')">
 
 Road Density
 
 </button>
 
-<button onclick="showImage('images2/hospital_density.png')">
+<button onclick="showLayer('hospital_density')">
 
 Hospital Density
 
 </button>
 
-<button onclick="showImage('images2/school_density.png')">
+<button onclick="showLayer('school_density')">
 
 School Density
 
 </button>
 
-<button onclick="removeOverlay()">
+<button onclick="removeLayer()">
 
 Hide Layer
 
@@ -150,7 +151,7 @@ Hide Layer
 
 <script>
 
-var map=L.map('map').setView([25.60,85.13],11);
+var map=L.map('map').setView([25.60,85.15],10);
 
 L.tileLayer(
 
@@ -166,23 +167,23 @@ attribution:'© OpenStreetMap'
 
 ).addTo(map);
 
-let boundary;
+var boundary;
 
-fetch('data/patna_boundaet_geojson.geojson')
+fetch("data/patna_boundaet_geojson.geojson")
 
 .then(response=>response.json())
 
-.then(data=>{
+.then(function(data){
 
 boundary=L.geoJSON(data,{
 
 style:{
 
-color:'black',
+color:"black",
 
-weight:2,
+weight:3,
 
-fillOpacity:0
+fill:false
 
 }
 
@@ -192,37 +193,45 @@ map.fitBounds(boundary.getBounds());
 
 });
 
-var imageOverlay;
+var rasterLayer=null;
 
-function showImage(image){
+function removeLayer(){
 
-removeOverlay();
+if(rasterLayer){
 
-if(!boundary){
-
-alert("Boundary not loaded yet.");
-
-return;
-
-}
-
-var bounds=boundary.getBounds();
-
-imageOverlay=L.imageOverlay(image,bounds).addTo(map);
-
-}
-
-function removeOverlay(){
-
-if(imageOverlay){
-
-map.removeLayer(imageOverlay);
+map.removeLayer(rasterLayer);
 
 }
 
 }
 
-L.control.scale().addTo(map);
+function showLayer(name){
+
+removeLayer();
+
+fetch("data/"+name+".tif")
+
+.then(response=>response.arrayBuffer())
+
+.then(arrayBuffer=>parseGeoraster(arrayBuffer))
+
+.then(function(georaster){
+
+rasterLayer=new GeoRasterLayer({
+
+georaster:georaster,
+
+opacity:0.75,
+
+resolution:256
+
+});
+
+rasterLayer.addTo(map);
+
+});
+
+}
 
 </script>
 
